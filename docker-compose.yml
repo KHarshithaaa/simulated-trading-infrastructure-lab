@@ -1,0 +1,74 @@
+﻿version: '3.8'
+
+services:
+  # 1. Primary Exchange Matching Engine
+  matching-engine:
+    image: alpine:latest
+    container_name: matching-engine
+    command: /bin/sh -c "while true; do sleep 3600; done"
+    networks:
+      - trading-net
+
+  # 2. Market Data Feed Gateway (L1/L2 book broadcast)
+  market-data-feed:
+    image: alpine:latest
+    container_name: market-data-feed
+    command: /bin/sh -c "while true; do sleep 3600; done"
+    networks:
+      - trading-net
+
+  # 3. FIX Protocol Client Gateway (Trader ingress)
+  client-gateway:
+    image: alpine:latest
+    container_name: client-gateway
+    command: /bin/sh -c "while true; do sleep 3600; done"
+    networks:
+      - trading-net
+
+  # 4. Quant Strategy Execution Service
+  quant-algo-service:
+    image: alpine:latest
+    container_name: quant-algo-service
+    command: /bin/sh -c "while true; do sleep 3600; done"
+    networks:
+      - trading-net
+
+  # 5. Risk & Clearing Engine
+  risk-engine:
+    image: alpine:latest
+    container_name: risk-engine
+    command: /bin/sh -c "while true; do sleep 3600; done"
+    networks:
+      - trading-net
+
+  # 6. High-Throughput Traffic Simulator (Packet generator)
+  traffic-gen:
+    image: alpine:latest
+    container_name: traffic-gen
+    command: /bin/sh -c "apk add --no-cache iproute2 ethtool python3 py3-pip && while true; do sleep 3600; done"
+    networks:
+      - trading-net
+
+  # 7. Telemetry & Metrics Node Exporter
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: trading-node-exporter
+    ports:
+      - "9101:9100"
+    networks:
+      - trading-net
+
+  # 8. Prometheus Telemetry Collector
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: trading-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - trading-net
+
+networks:
+  trading-net:
+    driver: bridge
